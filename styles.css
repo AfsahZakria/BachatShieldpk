@@ -1,0 +1,160 @@
+/* ==========================================================================
+   BachatShield - Styling & Theme Guardrails
+   Color Specifications:
+   - Background: Pure Black (#000000, #080808)
+   - Cards: Dark Grey (#121212, #181818, #1e1e1e)
+   - Buttons: Green (#16a34a, #22c55e, #10b981)
+   - Alerts: Yellow (#eab308, #f59e0b, #fbbf24)
+   - Text: Crisp White (#ffffff, muted #9ca3af)
+   ========================================================================== */
+
+:root {
+  --bg-black: #050505;
+  --bg-card: #141414;
+  --bg-card-hover: #1c1c1c;
+  --border-card: #27272a;
+  --btn-green: #22c55e;
+  --btn-green-hover: #16a34a;
+  --btn-green-glow: rgba(34, 197, 94, 0.25);
+  --alert-yellow: #f59e0b;
+  --alert-yellow-bg: rgba(245, 158, 11, 0.12);
+  --alert-yellow-border: rgba(245, 158, 11, 0.35);
+  --text-white: #ffffff;
+  --text-muted: #94a3b8;
+}
+
+body {
+  background-color: var(--bg-black);
+  color: var(--text-white);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #09090b;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--btn-green);
+}
+
+/* Dark Card System */
+.bs-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 1rem;
+  transition: all 0.25s ease-in-out;
+}
+.bs-card:hover {
+  border-color: #3f3f46;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7);
+}
+
+/* Button Stylings */
+.btn-green {
+  background-color: var(--btn-green);
+  color: #000000;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  padding: 0.625rem 1.25rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.btn-green:hover {
+  background-color: var(--btn-green-hover);
+  color: #ffffff;
+  box-shadow: 0 0 20px var(--btn-green-glow);
+  transform: translateY(-1px);
+}
+.btn-green:active {
+  transform: translateY(0);
+}
+
+.btn-green-outline {
+  background: transparent;
+  border: 1px solid var(--btn-green);
+  color: var(--btn-green);
+  font-weight: 600;
+  border-radius: 0.75rem;
+  padding: 0.5rem 1rem;
+  transition: all 0.2s ease;
+}
+.btn-green-outline:hover {
+  background: rgba(34, 197, 94, 0.15);
+  color: #ffffff;
+}
+
+/* Alert Boxes */
+.alert-yellow {
+  background-color: var(--alert-yellow-bg);
+  border: 1px solid var(--alert-yellow-border);
+  color: #fef08a;
+  border-radius: 0.75rem;
+  padding: 0.875rem 1.25rem;
+}
+
+.badge-yellow {
+  background-color: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fde047;
+  font-weight: 600;
+}
+
+/* Glassmorphism over deep black */
+.glass-surface {
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid #27272a;
+}
+
+/* Mic pulse animation for Voice Logging */
+@keyframes mic-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+.recording-active {
+  animation: mic-pulse 1.4s infinite;
+  background-color: #dc2626 !important;
+}
+
+/* Waveform simulation */
+.audio-bar {
+  width: 3px;
+  height: 12px;
+  background-color: #22c55e;
+  border-radius: 9999px;
+  animation: wave 1s ease-in-out infinite;
+}
+.audio-bar:nth-child(2) { animation-delay: 0.15s; height: 18px; }
+.audio-bar:nth-child(3) { animation-delay: 0.3s; height: 24px; }
+.audio-bar:nth-child(4) { animation-delay: 0.45s; height: 14px; }
+.audio-bar:nth-child(5) { animation-delay: 0.6s; height: 20px; }
+
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.4); }
+  50% { transform: scaleY(1.2); }
+}
+
+/* Safe spend progress bar */
+.meter-gradient {
+  background: linear-gradient(90deg, #22c55e 0%, #eab308 70%, #ef4444 100%);
+}

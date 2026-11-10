@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BachatShield - Localized Pakistani Family Finance</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brandBlack: '#050505',
+                        brandDarkGrey: '#141414',
+                        brandDarkGreyCard: '#1a1a1a',
+                        brandDarkGreyBorder: '#27272a',
+                        brandGreen: {
+                            DEFAULT: '#22c55e',
+                            hover: '#16a34a',
+                            dark: '#15803d',
+                            glow: 'rgba(34, 197, 94, 0.25)'
+                        },
+                        brandYellow: {
+                            DEFAULT: '#f59e0b',
+                            light: '#fde047',
+                            alertBg: 'rgba(245, 158, 11, 0.12)',
+                            alertBorder: 'rgba(245, 158, 11, 0.35)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-black text-white min-h-screen flex flex-col selection:bg-brandGreen selection:text-black antialiased">
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm pointer-events-none"></div>
+
+    <!-- Navigation Bar -->
+    <header class="sticky top-0 z-40 bg-black/90 backdrop-blur-md border-b border-[#222222]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            
+            <!-- Logo & Brand -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brandGreen-dark via-brandGreen to-brandYellow p-0.5 flex items-center justify-center shadow-lg shadow-brandGreen/20">
+                    <div class="w-full h-full bg-black rounded-[10px] flex items-center justify-center">
+                        <svg class="w-5 h-5 text-brandGreen" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-xl font-extrabold tracking-tight text-white">Bachat<span class="text-brandGreen">Shield</span></span>
+                        <span class="text-[10px] font-bold bg-brandGreen/20 text-brandGreen border border-brandGreen/30 px-1.5 py-0.5 rounded">PK</span>
+                    </div>
+                    <p class="text-[10px] text-gray-400 -mt-0.5 hidden sm:block">Pakistani Family Finance Platform</p>
+                </div>
+            </div>
+
+            <!-- Role-Based Family Privacy Switcher -->
+            <div class="flex items-center gap-3">
+                <button id="roleToggleBtn" class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-brandGreen/15 text-brandGreen border border-brandGreen/40 text-xs font-bold hover:bg-brandGreen/25 transition">
+                    <span id="roleIcon">👨‍👩‍👧‍👦</span>
+                    <span id="roleTitle">Parent Master View</span>
+                </button>
+            </div>
+
+            <!-- Header Right Status Badges -->
+            <div class="flex items-center gap-3">
+                <!-- Inflation Indicator Tag -->
+                <div class="hidden md:flex items-center gap-2 px-3 py-1 rounded-xl bg-brandDarkGrey border border-brandDarkGreyBorder text-xs">
+                    <span class="w-2 h-2 rounded-full bg-brandYellow animate-ping"></span>
+                    <span class="text-gray-400">PBS SPI Spike:</span>
+                    <span class="font-bold text-brandYellow">+16.8% Atta</span>
+                </div>
+
+                <!-- Add Transaction Trigger -->
+                <button onclick="app.openModal('addTxModal')" class="btn-green text-xs !py-2 !px-3 shadow-md shadow-brandGreen/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span class="hidden sm:inline">Add Entry</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Teen Sub-Wallet Privacy Notice Bar (Shown only in Teen Mode) -->
+    <div id="teenPrivacyNotice" class="hidden bg-purple-950/40 border-b border-purple-800/40 py-2 px-4 text-center text-xs text-purple-200">
+        🔒 <strong class="text-purple-300">Teen Sub-Wallet Active:</strong> Joint family income, utility bills, and committee pools are hidden. You are viewing your private pocket money and personal spending.
+    </div>
+
+    <!-- MAIN BODY CONTENT -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- HERO SECTION: MANDATORY MOTTO HEADLINE -->
+        <section class="bs-card p-6 sm:p-8 text-center relative overflow-hidden border-[#2a2a2a] bg-gradient-to-b from-[#181818] to-black">
+            <div class="absolute -top-12 left-1/2 transform -translate-x-1/2 w-96 h-32 bg-brandGreen/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brandYellow-alertBg border border-brandYellow-alertBorder text-brandYellow text-xs font-semibold mb-3">
+                <span>🛡️ BachatShield Protection Active</span>
+                <span class="w-1 h-1 rounded-full bg-brandYellow"></span>
+                <span>PKR Purchasing Power Shield</span>
+            </div>
+
+            <!-- REQUIRED MOTTO HEADLINE -->
+            <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight max-w-3xl mx-auto">
+                “Kharchay pe lagao tala, Savings se hoga ujala!”
+            </h1>
+
+            <!-- REQUIRED ITALIC SUBTEXT BELOW MOTTO -->
+            <p class="text-sm sm:text-base text-gray-300 italic font-medium mt-2 max-w-2xl mx-auto">
+                Control expenses and let your savings grow.
+            </p>
+
+            <p class="text-xs text-gray-400 mt-2 max-w-xl mx-auto">
+                Roman Urdu voice logging, automated bi-monthly school fee & utility daily micro-sinking funds, committee (BC) trackers, and 1-tap WhatsApp Udhaar reminders.
+            </p>
+        </section>
+
+        <!-- 1. NATURAL LANGUAGE ROMAN URDU VOICE & TEXT INGESTION BAR -->
+        <section class="bs-card p-4 sm:p-5 border-[#2c2c2c] bg-brandDarkGrey">
+            <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3">
+                
+                <!-- Smart Roman Urdu Ingestion Tag -->
+                <div class="hidden md:flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-black border border-[#27272a] text-brandGreen text-xs font-bold shrink-0">
+                    <span class="w-2 h-2 rounded-full bg-brandGreen animate-pulse"></span>
+                    <span>Roman Urdu AI</span>
+                </div>
+
+                <!-- Input Box -->
+                <div class="flex-1 relative">
+                    <input type="text" id="quickLogInput" 
+                        placeholder="Type or speak in Roman Urdu (e.g. 'Doodh 450', 'Petrol 3500 SadaPay', 'Careem 850')..." 
+                        class="w-full bg-black border border-[#2f2f2f] rounded-xl pl-4 pr-28 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-brandGreen focus:ring-1 focus:ring-brandGreen transition">
+                    
+                    <button id="quickLogSubmitBtn" class="btn-green absolute right-2 top-2 bottom-2 !py-0 !px-4 text-xs font-bold shadow-md">
+                        <span>Log Entry</span>
+                    </button>
+                </div>
+
+                <!-- Voice Recording & Preset Buttons -->
+                <div class="flex items-center gap-2">
+                    <button id="micRecordBtn" title="Speak in Roman Urdu" class="px-4 py-3 rounded-xl bg-black hover:bg-[#202020] border border-[#2f2f2f] text-white text-xs font-semibold transition flex items-center justify-center gap-2 group">
+                        <svg id="micIcon" class="w-4 h-4 text-red-500 group-hover:scale-110 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+                        </svg>
+                        <span class="hidden sm:inline">Voice Note</span>
+                    </button>
+
+                    <!-- Waveform simulation during recording -->
+                    <div id="voiceWaveform" class="hidden items-center gap-1 px-2 py-1 bg-black rounded-lg border border-red-500/50">
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Quick Pakistani Chips -->
+            <div class="flex items-center gap-2 mt-3 overflow-x-auto pb-1 text-xs">
+                <span class="text-[11px] text-gray-500 whitespace-nowrap">Try One-Tap:</span>
+                <button onclick="app.fillQuickTag('Doodh 450 Cash')" class="px-2.5 py-1 rounded-lg bg-black hover:bg-[#222222] border border-[#282828] text-gray-300 whitespace-nowrap transition">+ Rs. 450 Doodh</button>
+                <button onclick="app.fillQuickTag('Shell Petrol 3500 SadaPay')" class="px-2.5 py-1 rounded-lg bg-black hover:bg-[#222222] border border-[#282828] text-gray-300 whitespace-nowrap transition">+ Rs. 3,500 Petrol</button>
+                <button onclick="app.fillQuickTag('Tariq karyana 3800 atta')" class="px-2.5 py-1 rounded-lg bg-black hover:bg-[#222222] border border-[#282828] text-gray-300 whitespace-nowrap transition">+ Rs. 3,800 Karyana</button>
+                <button onclick="app.fillQuickTag('Careem ride 850')" class="px-2.5 py-1 rounded-lg bg-black hover:bg-[#222222] border border-[#282828] text-gray-300 whitespace-nowrap transition">+ Rs. 850 Careem</button>
+                <button onclick="app.fillQuickTag('Ali ko 2500 udhaar diye')" class="px-2.5 py-1 rounded-lg bg-black hover:bg-[#222222] border border-[#282828] text-yellow-400 whitespace-nowrap transition">🤝 Rs. 2,500 Udhaar</button>
+            </div>
+        </section>
+
+        <!-- 2. REAL-TIME FINANCIAL HUD METRIC CARDS -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="hudGrid">
+            
+            <!-- Card 1: Monthly Cashflow Overview -->
+            <div class="bs-card p-5 relative overflow-hidden bg-brandDarkGrey">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Monthly Cashflow</span>
+                    <span class="p-2 rounded-xl bg-brandGreen/10 text-brandGreen">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </span>
+                </div>
+                <div class="space-y-1">
+                    <div class="text-2xl font-bold text-white tracking-tight" id="hudSpentDisplay">Rs. 0</div>
+                    <div class="text-xs text-gray-400 flex items-center justify-between">
+                        <span>Budget: <strong class="text-gray-200" id="hudIncomeDisplay">Rs. 240,000</strong></span>
+                        <span id="hudBudgetPct" class="text-brandGreen font-bold">0%</span>
+                    </div>
+                </div>
+                <!-- Progress Bar -->
+                <div class="w-full bg-black rounded-full h-2 mt-4 overflow-hidden border border-[#282828]">
+                    <div id="hudBudgetProgressBar" class="bg-brandGreen h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Card 2: Safe Daily Spend Limit HUD (Core Feature) -->
+            <div class="bs-card p-5 relative overflow-hidden bg-brandDarkGrey border-brandGreen/30">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Safe Daily Spend</span>
+                    <span id="safeDailyStatus" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brandGreen/20 text-brandGreen border border-brandGreen/40">
+                        Calculating...
+                    </span>
+                </div>
+                <div class="space-y-1">
+                    <div class="text-2xl font-extrabold text-brandGreen tracking-tight" id="hudDailySpendDisplay">Rs. 0</div>
+                    <p class="text-xs text-gray-400" id="hudDaysRemaining">Days remaining in month</p>
+                </div>
+                <div class="mt-4 flex items-center justify-between text-[11px] text-gray-300 bg-black/60 px-2.5 py-1.5 rounded-lg border border-[#282828]">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-brandGreen animate-pulse"></span>
+                        <span>Zero bill-shock guard</span>
+                    </span>
+                    <span class="text-brandYellow font-semibold">Micro-funds locked</span>
+                </div>
+            </div>
+
+            <!-- Card 3: Bi-Monthly School Fee & Utility Sinking Funds -->
+            <div class="bs-card p-5 relative overflow-hidden bg-brandDarkGrey">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold text-brandYellow uppercase tracking-wider">Daily Micro-Sinking Funds</span>
+                    <span class="p-2 rounded-xl bg-brandYellow/15 text-brandYellow">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 01-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+                    </span>
+                </div>
+                <div class="space-y-1">
+                    <div class="text-2xl font-bold text-brandYellow tracking-tight" id="sinkingFundSummaryDisplay">Rs. 0</div>
+                    <div class="text-xs text-gray-400 flex justify-between">
+                        <span id="sinkingFundDailyObligation">Auto-locking daily</span>
+                        <span class="text-brandGreen font-medium">Locked</span>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center justify-between">
+                    <button onclick="app.allocateDailySinkingFunds()" class="w-full py-1.5 px-3 rounded-lg bg-brandYellow/15 hover:bg-brandYellow/25 text-brandYellow text-xs font-bold border border-brandYellow/30 transition">
+                        ⚡ Lock Today's Micro Funds
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 4: Inflation Shield Purchasing Power Guard -->
+            <div class="bs-card p-5 relative overflow-hidden bg-brandDarkGrey">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold text-white uppercase tracking-wider">Inflation Shield</span>
+                    <span class="p-2 rounded-xl bg-brandYellow/15 text-brandYellow">
+                        🛡️
+                    </span>
+                </div>
+                <div class="space-y-1">
+                    <div class="text-2xl font-bold text-white tracking-tight">19.5% <span class="text-xs font-normal text-gray-400">Yield Guard</span></div>
+                    <p class="text-xs text-gray-400">Shariah Daily Cash + Gold</p>
+                </div>
+                <div class="mt-4 flex items-center justify-between text-[11px] text-gray-300 bg-black/60 px-2.5 py-1.5 rounded-lg border border-[#282828]">
+                    <span class="text-brandYellow font-semibold">SPI Alert Active</span>
+                    <span class="text-brandGreen font-bold">+16.8% Atta</span>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- 3. LOCALIZED PAKISTANI FINANCIAL MODULES -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Module 1: Automated Daily Micro-Sinking Funds Breakdown -->
+            <div class="bs-card p-5 bg-brandDarkGrey flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-brandYellow/20 text-brandYellow flex items-center justify-center font-bold text-sm">
+                                🎓
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-bold text-white">Micro-Sinking Funds</h3>
+                                <p class="text-[11px] text-gray-400">Bi-monthly school fees & utility shock cushion</p>
+                            </div>
+                        </div>
+                        <button onclick="app.openModal('sinkingFundModal')" class="text-xs text-brandGreen hover:underline font-bold">+ New Fund</button>
+                    </div>
+
+                    <div class="space-y-3 my-2" id="sinkingFundsContainer">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-[#27272a] text-[11px] text-gray-400">
+                    💡 <strong class="text-white">Why this works:</strong> Saving Rs. 450/day eliminates the bi-monthly Rs. 55,000 tuition fee shock.
+                </div>
+            </div>
+
+            <!-- Module 2: Committee (BC / ROSCA) Ledger (Parent Only) -->
+            <div class="bs-card p-5 bg-brandDarkGrey flex flex-col justify-between parent-only-module">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-brandGreen/20 text-brandGreen flex items-center justify-center font-bold text-sm">
+                                BC
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-bold text-white">Committees (BCs / Kameti)</h3>
+                                <p class="text-[11px] text-gray-400">Family savings circles & monthly draws</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold bg-brandGreen/20 text-brandGreen border border-brandGreen/40 px-2 py-0.5 rounded-full">Turn #6</span>
+                    </div>
+
+                    <div id="committeeContainer" class="space-y-3 my-2">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-[#27272a] text-xs text-gray-400 flex justify-between items-center">
+                    <span>Draw frequency: Monthly</span>
+                    <span class="text-brandGreen font-bold">1-Click Status Sync</span>
+                </div>
+            </div>
+
+            <!-- Module 3: Udhaar Ledger & 1-Tap WhatsApp Reminders -->
+            <div class="bs-card p-5 bg-brandDarkGrey flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-brandYellow/20 text-brandYellow flex items-center justify-center font-bold text-sm">
+                                🤝
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-bold text-white">Udhaar & Informal Ledger</h3>
+                                <p class="text-[11px] text-gray-400">Track balance owed to/from relatives & shops</p>
+                            </div>
+                        </div>
+                        <button onclick="app.openModal('addUdhaarModal')" class="text-xs text-brandGreen hover:underline font-bold">+ Add Udhaar</button>
+                    </div>
+
+                    <div class="space-y-2.5 my-2" id="udhaarListContainer">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-[#27272a] flex items-center justify-between text-xs">
+                    <span class="text-gray-400">Net Receivable Balance:</span>
+                    <span id="netReceivableDisplay" class="font-bold text-brandGreen">+ Rs. 0</span>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- 4. INFLATION SHIELD COMMODITY PRICE SPIKE ALERTS -->
+        <section class="bs-card p-5 bg-brandDarkGrey border-brandYellow-alertBorder">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-brandYellow animate-ping"></span>
+                        <h3 class="text-base font-extrabold text-white">Inflation Shield: Household Commodity Alerts</h3>
+                    </div>
+                    <p class="text-xs text-gray-400">Sensitive Price Indicator (SPI) index tracking for Pakistani middle-class essentials</p>
+                </div>
+                <div class="text-xs text-brandYellow bg-brandYellow-alertBg border border-brandYellow-alertBorder px-3 py-1.5 rounded-xl font-bold">
+                    Pakistan Bureau of Statistics (PBS) Verified
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="inflationAlertsContainer">
+                <!-- Populated dynamically via JS -->
+            </div>
+        </section>
+
+        <!-- 5. RECENT TRANSACTIONS LEDGER TABLE -->
+        <section class="bs-card p-5 bg-brandDarkGrey">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+                <div>
+                    <h3 class="text-base font-bold text-white">Family Transaction Ledger</h3>
+                    <p class="text-xs text-gray-400">Logged via Roman Urdu natural voice, text, or manual entries</p>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="app.filterTransactions('all')" class="tx-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-brandGreen text-black transition">All</button>
+                    <button onclick="app.filterTransactions('groceries')" class="tx-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#181818] text-gray-300 hover:bg-[#27272a] border border-[#27272a] transition">Groceries</button>
+                    <button onclick="app.filterTransactions('utilities')" class="tx-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#181818] text-gray-300 hover:bg-[#27272a] border border-[#27272a] transition">Utilities</button>
+                    <button onclick="app.filterTransactions('education')" class="tx-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#181818] text-gray-300 hover:bg-[#27272a] border border-[#27272a] transition">School Fees</button>
+                    <button onclick="app.filterTransactions('transport')" class="tx-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#181818] text-gray-300 hover:bg-[#27272a] border border-[#27272a] transition">Transport</button>
+                    <button onclick="app.filterTransactions('personal_teen')" class="tx-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#181818] text-gray-300 hover:bg-[#27272a] border border-[#27272a] transition">Teen Sub-Wallet</button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="text-gray-400 border-b border-[#282828] uppercase text-[10px] tracking-wider">
+                            <th class="pb-3 px-3 font-semibold">Transaction Details</th>
+                            <th class="pb-3 px-3 font-semibold">Category</th>
+                            <th class="pb-3 px-3 font-semibold">Payment Channel</th>
+                            <th class="pb-3 px-3 font-semibold">Date & Time</th>
+                            <th class="pb-3 px-3 font-semibold text-right">Amount (PKR)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionTableBody" class="divide-y divide-[#222222]">
+                        <!-- Populated dynamically via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-[#222222] bg-black py-8 mt-12 text-xs text-gray-400">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <span class="font-extrabold text-white">BachatShield PK</span>
+                <span>• Built for Pakistani Household Realities</span>
+            </div>
+            <div class="flex items-center gap-4 text-gray-400">
+                <span>Shariah-Aligned Cash Reserves</span>
+                <span>Raast IBAN Instant Nudge</span>
+                <span>Role-Based Family Privacy</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- 1. Add Transaction Modal -->
+    <div id="addTxModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bs-card w-full max-w-md p-6 bg-brandDarkGrey border-[#333333] shadow-2xl relative">
+            <button onclick="app.closeModal('addTxModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                ✕
+            </button>
+            <h3 class="text-base font-bold text-white mb-4">Add Manual Financial Entry</h3>
+            
+            <form id="manualTxForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Entry Title</label>
+                    <input type="text" id="manualTitle" required placeholder="e.g. Imtiaz Super Market Grocery" class="w-full bg-black border border-[#2f2f2f] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brandGreen">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-1">Amount (PKR)</label>
+                        <input type="number" id="manualAmount" required placeholder="4500" class="w-full bg-black border border-[#2f2f2f] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brandGreen">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-1">Type</label>
+                        <select id="manualType" class="w-full bg-black border border-[#2f2f2f] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brandGreen">
+                            <option value="expense">Expense (-)</option>
+                            <option value="income">Income (+)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-1">Category</label>
+                        <select id="manualCategory" class="w-full bg-black border border-[#2f2f2f] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brandGreen">
+                            <option value="groceries">Groceries (Ration/Doodh)</option>
+                            <option value="utilities">Utilities (Bijli/Gas)</option>
+                            <option value="education">Education (School Fee)</option>
+                            <option value="transport">Transport / Fuel</option>
+                            <option value="personal_teen">Teen Sub-Wallet</option>
+                            <option value="medical">Medical</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-1">Payment Method</label>
+                        <select id="manualMethod" class="w-full bg-black border border-[#2f2f2f] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brandGreen">
+                            <option value="Cash">Cash Wallet</option>
+                            <option value="Raast">Raast IBAN</option>
+                            <option value="SadaPay">SadaPay</option>
+                            <option value="JazzCash">JazzCash</option>
+                            <option value="Easypaisa">Easypaisa</option>
+                            <option value="Meezan Bank">Meezan Bank</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-green w-full !py-2.5 text-xs font-bold shadow-lg shadow-brandGreen/20 mt-2">
+                    Save Transaction
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Add Sinking Fund Modal -->
+    <div id="sinkingFundModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bs-card w-full max-w-md p-6 bg-brandDarkGrey border-[#333333] shadow-2xl relative">
+            <button onclick="app.closeModal('sinkingFundModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                ✕
+            </button>
+            <h3 class="text-base font-bold text-white mb-2">Create Micro-Sinking Fund</h3>
+            <p class="text-xs text-gray-400 mb-4">Break bi-monthly school fees or seasonal bills into daily automated micro-targets.</p>
+
+            <form id="sinkingFundForm" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Fund Purpose</label>
+                    <input type="text" id="sfTitle" required placeholder="e.g. City School Bi-Monthly Fee" class="w-full bg-black border border-[#2f2f2f] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brandGreen">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-1">Target Amount (PKR)</label>
+                        <input type="number" id="sfTargetAmount" required placeholder="50000" class="w-full bg-black border border-[#2f2f2f] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brandGreen">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-1">Due Date</label>
+                        <input type="date" id="sfDueDate" required class="w-full bg-black border border-[#2f2f2f] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brandGreen">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Category</label>
+                    <select id="sfCategory" class="w-full bg-black border border-[#2f2f2f] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brandGreen">
+                        <option value="education">Education (School / College Fee)</option>
+                        <option value="utilities">Utility Bill Shock Cushion</option>
+                        <option value="general">Seasonal / General Sinking Fund</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Notes</label>
+                    <input type="text" id="sfNotes" placeholder="e.g. 2 kids voucher due next month" class="w-full bg-black border border-[#2f2f2f] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brandGreen">
+                </div>
+
+                <button type="submit" class="btn-green w-full !py-2.5 text-xs font-bold shadow-lg shadow-brandGreen/20 mt-3">
+                    Start Micro-Sinking Fund
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. Add Udhaar Modal -->
+    <div id="addUdhaarModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bs-card w-full max-w-sm p-6 bg-brandDarkGrey border-[#333333] shadow-2xl relative">
+            <button onclick="app.closeModal('addUdhaarModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                ✕
+            </button>
+
+            <h3 class="text-base font-bold text-white mb-1">Add Informal Debt (Udhaar)</h3>
+            <p class="text-xs text-gray-400 mb-4">Track lending or borrowing with 1-tap WhatsApp reminders.</p>
+
+            <form id="udhaarForm" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Person / Shop Name</label>
+                    <input type="text" id="udhPersonName" required placeholder="e.g. Tariq Karyana or Ali Cousin" class="w-full bg-black border border-[#2f2f2f] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brandGreen">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Amount (PKR)</label>
+                    <input type="number" id="udhAmount" required placeholder="3500" class="w-full bg-black border border-[#2f2f2f] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brandGreen">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Type</label>
+                    <select id="udhType" class="w-full bg-black border border-[#2f2f2f] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brandGreen">
+                        <option value="receivable">They owe you (+ Receivable)</option>
+                        <option value="payable">You owe them (- Payable)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Reason / Note</label>
+                    <input type="text" id="udhReason" placeholder="e.g. Dinner bill split or ration tab" class="w-full bg-black border border-[#2f2f2f] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brandGreen">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Mobile / WhatsApp # (Optional)</label>
+                    <input type="tel" id="udhPhone" placeholder="03001234567" class="w-full bg-black border border-[#2f2f2f] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brandGreen">
+                </div>
+                <button type="submit" class="btn-green w-full !py-2.5 text-xs font-bold shadow-lg shadow-brandGreen/20 mt-2">
+                    Save Udhaar Entry
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4. 1-Tap WhatsApp Reminder Modal -->
+    <div id="whatsAppModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bs-card w-full max-w-md p-6 bg-brandDarkGrey border-[#333333] shadow-2xl relative">
+            <button onclick="app.closeModal('whatsAppModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                ✕
+            </button>
+
+            <div class="flex items-center gap-2 mb-2">
+                <span class="w-8 h-8 rounded-lg bg-brandGreen/20 text-brandGreen flex items-center justify-center font-bold">
+                    💬
+                </span>
+                <h3 class="text-base font-bold text-white">1-Tap WhatsApp Reminder</h3>
+            </div>
+            <p class="text-xs text-gray-400 mb-4">Polite Roman Urdu reminder ready to send with your Raast ID:</p>
+
+            <div class="p-3.5 rounded-xl bg-black border border-[#2a2a2a] text-xs text-gray-200 whitespace-pre-line font-mono mb-4" id="whatsAppMessagePreview">
+                <!-- Preview message populated via JS -->
+            </div>
+
+            <div class="flex items-center gap-3">
+                <a id="whatsAppDirectLink" target="_blank" class="btn-green flex-1 text-xs font-bold text-center !py-2.5 shadow-lg shadow-brandGreen/20">
+                    Open in WhatsApp →
+                </a>
+                <button onclick="app.closeModal('whatsAppModal')" class="px-4 py-2.5 rounded-xl bg-black border border-[#2a2a2a] text-xs text-gray-300 font-semibold hover:bg-[#1a1a1a] transition">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="js/nlp-parser.js"></script>
+    <script src="js/api-client.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
